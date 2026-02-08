@@ -1,3 +1,4 @@
+
 import { useLoader } from "@/hooks/useLoader";
 import {
   deleteTransactions,
@@ -15,14 +16,15 @@ import {
   Text,
   TouchableOpacity,
   View,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ViewTransactions() {
-    const router = useRouter();
+  const router = useRouter();
   const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [visibleCount, setVisibleCount] = useState<number>(5);
+  const [visibleCount, setVisibleCount] = useState<number>(10);
   const { showLoader, hideLoader } = useLoader();
 
   useEffect(() => {
@@ -56,10 +58,9 @@ export default function ViewTransactions() {
             }
           },
         },
-      ],
+      ]
     );
   };
-
 
   const handleUpdate = (item: TransactionData) => {
     router.push({
@@ -81,55 +82,58 @@ export default function ViewTransactions() {
     const isIncome = item.type === "income";
 
     return (
-      <View
-        style={[styles.card, { borderColor: isIncome ? "#D2E3C8" : "#F87171" }]}
-      >
-        <View style={styles.cardHeader}>
-          <View
-            style={[
-              styles.iconContainer,
-              { backgroundColor: isIncome ? "#D2E3C8" : "#FEE2E2" },
-            ]}
-          >
-            <Ionicons
-              name={isIncome ? "arrow-down-outline" : "arrow-up-outline"}
-              size={20}
-              color="#1A4D2E"
-            />
-          </View>
-          <View style={styles.textDetails}>
-            <Text style={styles.title}>
+      <View style={styles.rowItem}>
+        {/* Left: Color Strip Indicator */}
+        <View 
+          style={[
+            styles.colorStrip, 
+            { backgroundColor: isIncome ? "#10B981" : "#EF4444" }
+          ]} 
+        />
+
+        {/* Content Container */}
+        <View style={styles.rowContent}>
+          
+          {/* Middle: Text Info */}
+          <View style={styles.textContainer}>
+            <Text style={styles.title} numberOfLines={1}>
               {item.description || "No Description"}
             </Text>
-            <Text style={styles.category}>{item.categoryName}</Text>
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>{item.categoryName}</Text>
+            </View>
           </View>
-          <Text
-            style={[styles.amount, { color: isIncome ? "#4F6F52" : "#B91C1C" }]}
-          >
-            {isIncome ? "+" : "-"} LKR {item.amount.toLocaleString()}
-          </Text>
-        </View>
 
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() =>
-              handleUpdate(item)
-            }
-          >
-            <Ionicons name="pencil-outline" size={18} color="#739072" />
-            <Text style={styles.actionText}>Edit</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => item.id && handleDelete(item.id)}
-          >
-            <Ionicons name="trash-outline" size={18} color="#B91C1C" />
-            <Text style={[styles.actionText, { color: "#B91C1C" }]}>
-              Delete
+          {/* Right: Amount & Actions */}
+          <View style={styles.rightContainer}>
+            <Text
+              style={[
+                styles.amount,
+                { color: isIncome ? "#10B981" : "#EF4444" },
+              ]}
+            >
+              {isIncome ? "+" : "-"} {item.amount.toLocaleString()}
             </Text>
-          </TouchableOpacity>
+
+            {/* Compact Action Icons Row */}
+            <View style={styles.miniActionRow}>
+              <TouchableOpacity
+                style={styles.iconBtn}
+                onPress={() => handleUpdate(item)}
+              >
+                <Ionicons name="pencil" size={16} color="#3B82F6" />
+              </TouchableOpacity>
+              
+              <View style={styles.verticalDivider} />
+
+              <TouchableOpacity
+                style={styles.iconBtn}
+                onPress={() => item.id && handleDelete(item.id)}
+              >
+                <Ionicons name="trash" size={16} color="#EF4444" />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </View>
     );
@@ -138,85 +142,238 @@ export default function ViewTransactions() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#1A4D2E" />
+        <ActivityIndicator size="large" color="#172554" />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>History</Text>
-        <Text style={styles.headerSub}>
-          {transactions.length} Total Records
-        </Text>
-      </View>
+    <View style={styles.mainContainer}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* --- NEW HEADER STYLE START --- */}
+      <View style={styles.curvedHeader}>
+        <SafeAreaView edges={['top', 'left', 'right']}>
+          <View style={styles.headerContent}>
+            
+            {/* Title Section */}
+            <View>
+              <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                <Ionicons name="wallet" size={20} color="#60A5FA" style={{marginRight: 8}}/>
+                <Text style={styles.topLabel}>OVERVIEW</Text>
+              </View>
+              <Text style={styles.mainTitle}>My Activity</Text>
+            </View>
 
-      <FlatList
-        data={transactions.slice(0, visibleCount)}
-        keyExtractor={(item) => item.id || Math.random().toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listPadding}
-        ListFooterComponent={() =>
-          visibleCount < transactions.length ? (
-            <TouchableOpacity style={styles.loadMoreBtn} onPress={loadMore}>
-              <Text style={styles.loadMoreText}>Load More</Text>
-            </TouchableOpacity>
-          ) : null
-        }
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            You haven't added any transactions yet.
-          </Text>
-        }
-      />
-    </SafeAreaView>
+            {/* Glass Badge Section */}
+            <View style={styles.glassBadge}>
+              <Text style={styles.badgeNumber}>{transactions.length}</Text>
+              <Text style={styles.badgeLabel}>Records</Text>
+            </View>
+
+          </View>
+        </SafeAreaView>
+      </View>
+      {/* --- NEW HEADER STYLE END --- */}
+
+      {/* List Area */}
+      <View style={styles.listArea}>
+        <FlatList
+          data={transactions.slice(0, visibleCount)}
+          keyExtractor={(item) => item.id || Math.random().toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listPadding}
+          showsVerticalScrollIndicator={false}
+          ListFooterComponent={() =>
+            visibleCount < transactions.length ? (
+              <TouchableOpacity style={styles.loadMoreBtn} onPress={loadMore}>
+                <Text style={styles.loadMoreText}>View Older Records</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={{height: 40}} />
+            )
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="list-outline" size={50} color="#CBD5E1" />
+              <Text style={styles.emptyText}>No records found</Text>
+            </View>
+          }
+        />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F7F1EE" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  header: { padding: 25 },
-  headerTitle: { fontSize: 28, fontWeight: "800", color: "#1A4D2E" },
-  headerSub: { fontSize: 14, color: "#739072", marginTop: 4 },
-  listPadding: { paddingHorizontal: 20, paddingBottom: 40 },
-  card: {
-    backgroundColor: "white",
-    borderRadius: 25,
-    padding: 20,
-    marginBottom: 15,
-    borderWidth: 1.5,
-    elevation: 2,
+  // Structure
+  mainContainer: {
+    flex: 1,
+    backgroundColor: "#F1F5F9", 
   },
-  cardHeader: { flexDirection: "row", alignItems: "center" },
-  iconContainer: { padding: 10, borderRadius: 15 },
-  textDetails: { flex: 1, marginLeft: 15 },
-  title: { fontSize: 16, fontWeight: "700", color: "#2C3639" },
-  category: { fontSize: 12, color: "#739072", marginTop: 2 },
-  amount: { fontSize: 16, fontWeight: "800" },
-  actionRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 15,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F1F5F9",
   },
-  actionBtn: { flexDirection: "row", alignItems: "center", marginLeft: 20 },
-  actionText: {
-    marginLeft: 6,
-    fontSize: 14,
+
+  // --- NEW HEADER STYLES ---
+  curvedHeader: {
+    backgroundColor: "#172554", // Midnight Blue
+    paddingHorizontal: 24,
+    paddingBottom: 40, // Extra padding for the curve effect
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+    shadowColor: "#172554",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+    zIndex: 10,
+  },
+  headerContent: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  topLabel: {
+    color: "#60A5FA", // Light Blue
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+  },
+  mainTitle: {
+    color: "#ffffff",
+    fontSize: 32,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
+  glassBadge: {
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+  },
+  badgeNumber: {
+    color: "#ffffff",
+    fontSize: 20,
+    fontWeight: "800",
+  },
+  badgeLabel: {
+    color: "#93C5FD",
+    fontSize: 10,
     fontWeight: "600",
-    color: "#739072",
+    textTransform: "uppercase",
+  },
+
+  // --- LIST & ROW STYLES (Unchanged) ---
+  listArea: {
+    flex: 1,
+    marginTop: -10, // Slight overlap
+  },
+  listPadding: {
+    padding: 20,
+    paddingTop: 20,
+  },
+  rowItem: {
+    flexDirection: "row",
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    marginBottom: 12,
+    overflow: "hidden",
+    shadowColor: "#64748B",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#F8FAFC",
+  },
+  colorStrip: {
+    width: 6,
+    height: "100%",
+  },
+  rowContent: {
+    flex: 1,
+    flexDirection: "row",
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  textContainer: {
+    flex: 1,
+    marginRight: 10,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 6,
+  },
+  categoryBadge: {
+    backgroundColor: "#F1F5F9",
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  categoryText: {
+    fontSize: 11,
+    color: "#64748B",
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  rightContainer: {
+    alignItems: "flex-end",
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: "800",
+    marginBottom: 8,
+  },
+  miniActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "#F8FAFC",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  iconBtn: {
+    padding: 8,
+  },
+  verticalDivider: {
+    width: 1,
+    height: 14,
+    backgroundColor: "#CBD5E1",
   },
   loadMoreBtn: {
-    padding: 15,
+    backgroundColor: "#ffffff",
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: "center",
-    backgroundColor: "#1A4D2E",
-    borderRadius: 15,
-    marginTop: 10,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
-  loadMoreText: { color: "white", fontWeight: "700" },
-  emptyText: { textAlign: "center", marginTop: 50, color: "#739072" },
+  loadMoreText: {
+    color: "#172554",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  emptyState: {
+    alignItems: "center",
+    marginTop: 60,
+    opacity: 0.6,
+  },
+  emptyText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#64748B",
+    fontWeight: "500",
+  },
 });

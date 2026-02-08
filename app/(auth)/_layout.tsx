@@ -7,7 +7,6 @@ export default function AuthLayout() {
   return (
     <ImageBackground
       source={{
-        // uri: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=2074",
         uri:"https://images.unsplash.com/photo-1580519542036-c47de6196ba5?q=80&w=2074&auto=format&fit=crop",
       }}
       style={{ flex: 1 }}
