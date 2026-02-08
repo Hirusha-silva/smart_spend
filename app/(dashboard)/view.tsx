@@ -63,15 +63,14 @@ export default function ViewTransactions() {
   };
 
   const handleUpdate = (item: TransactionData) => {
-    router.push({
-      pathname: "/update",
-      params: {
-        id: item.id,
-        amount: item.amount.toString(),
-        description: item.description,
-        category: item.categoryName,
-      },
-    });
+    const qs = new URLSearchParams({
+      id: item.id || "",
+      amount: item.amount?.toString() || "",
+      description: item.description || "",
+      category: item.categoryName || "",
+    }).toString();
+
+    router.push(`/update?${qs}`);
   };
 
   const loadMore = () => {
@@ -84,16 +83,16 @@ export default function ViewTransactions() {
     return (
       <View style={styles.rowItem}>
         {/* Left: Color Strip Indicator */}
-        <View 
+        <View
           style={[
-            styles.colorStrip, 
+            styles.colorStrip,
             { backgroundColor: isIncome ? "#10B981" : "#EF4444" }
-          ]} 
+          ]}
         />
 
         {/* Content Container */}
         <View style={styles.rowContent}>
-          
+
           {/* Middle: Text Info */}
           <View style={styles.textContainer}>
             <Text style={styles.title} numberOfLines={1}>
@@ -123,7 +122,7 @@ export default function ViewTransactions() {
               >
                 <Ionicons name="pencil" size={16} color="#3B82F6" />
               </TouchableOpacity>
-              
+
               <View style={styles.verticalDivider} />
 
               <TouchableOpacity
@@ -150,16 +149,16 @@ export default function ViewTransactions() {
   return (
     <View style={styles.mainContainer}>
       <StatusBar barStyle="light-content" />
-      
+
       {/* --- NEW HEADER STYLE START --- */}
       <View style={styles.curvedHeader}>
         <SafeAreaView edges={['top', 'left', 'right']}>
           <View style={styles.headerContent}>
-            
+
             {/* Title Section */}
             <View>
-              <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
-                <Ionicons name="wallet" size={20} color="#60A5FA" style={{marginRight: 8}}/>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <Ionicons name="wallet" size={20} color="#60A5FA" style={{ marginRight: 8 }} />
                 <Text style={styles.topLabel}>OVERVIEW</Text>
               </View>
               <Text style={styles.mainTitle}>My Activity</Text>
@@ -190,7 +189,7 @@ export default function ViewTransactions() {
                 <Text style={styles.loadMoreText}>View Older Records</Text>
               </TouchableOpacity>
             ) : (
-              <View style={{height: 40}} />
+              <View style={{ height: 40 }} />
             )
           }
           ListEmptyComponent={
@@ -209,7 +208,7 @@ const styles = StyleSheet.create({
   // Structure
   mainContainer: {
     flex: 1,
-    backgroundColor: "#F1F5F9", 
+    backgroundColor: "#F1F5F9",
   },
   center: {
     flex: 1,

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -9,6 +10,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -46,44 +48,56 @@ export default function UpdateTransaction() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
-        <ScrollView showsVerticalScrollIndicator={false}>
+    <View style={styles.mainContainer}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Curved Blue Header Background */}
+      <View style={styles.headerBackground}>
+        <SafeAreaView edges={['top', 'left', 'right']}>
           <View style={styles.navHeader}>
             <TouchableOpacity
               onPress={() => router.back()}
               style={styles.backBtn}
             >
-              <Ionicons name="chevron-back" size={24} color="#1A4D2E" />
+              <Ionicons name="arrow-back" size={24} color="#ffffff" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Edit Details</Text>
-            <View style={{ width: 40 }} />
+            <Text style={styles.headerTitle}>Edit Transaction</Text>
+            <View style={{ width: 44 }} /> 
           </View>
+        </SafeAreaView>
+      </View>
 
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          
           <Text style={styles.subtitle}>
-            Modify your transaction information below
+            Update the details of your transaction below.
           </Text>
 
           {/* Amount Field */}
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Amount (LKR)</Text>
             <View style={styles.card}>
-              <Ionicons
-                name="wallet-outline"
-                size={20}
-                color="#739072"
-                style={styles.inputIcon}
-              />
+              <View style={styles.iconCircle}>
+                <Ionicons
+                  name="wallet"
+                  size={20}
+                  color="#3B82F6"
+                />
+              </View>
               <TextInput
                 style={styles.input}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="decimal-pad"
                 placeholder="0.00"
-                placeholderTextColor="#A9AF94"
+                placeholderTextColor="#94A3B8"
               />
             </View>
           </View>
@@ -92,19 +106,20 @@ export default function UpdateTransaction() {
           <View style={styles.inputWrapper}>
             <Text style={styles.label}>Description</Text>
             <View style={[styles.card, styles.textAreaCard]}>
-              <Ionicons
-                name="document-text-outline"
-                size={20}
-                color="#739072"
-                style={[styles.inputIcon, { marginTop: 2 }]}
-              />
+              <View style={[styles.iconCircle, { marginTop: 0 }]}>
+                 <Ionicons
+                  name="document-text"
+                  size={20}
+                  color="#3B82F6"
+                />
+              </View>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 value={description}
                 onChangeText={setDescription}
                 multiline
                 placeholder="What was this for?"
-                placeholderTextColor="#A9AF94"
+                placeholderTextColor="#94A3B8"
                 textAlignVertical="top"
               />
             </View>
@@ -116,125 +131,172 @@ export default function UpdateTransaction() {
               onPress={handleUpdate}
               activeOpacity={0.8}
             >
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={22}
-                color="white"
-                style={{ marginRight: 8 }}
-              />
               <Text style={styles.saveText}>Save Changes</Text>
+              <Ionicons
+                name="checkmark-circle"
+                size={20}
+                color="white"
+                style={{ marginLeft: 8 }}
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.cancelBtn}
               onPress={() => router.back()}
             >
-              <Text style={styles.cancelText}>Discard Changes</Text>
+              <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F7F1EE" },
+  mainContainer: { 
+    flex: 1, 
+    backgroundColor: "#F1F5F9" // Slate 100
+  },
+  
+  // Header Styles
+  headerBackground: {
+    backgroundColor: "#172554", // Midnight Blue
+    paddingBottom: 30,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    zIndex: 10,
+    shadowColor: "#172554",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+  },
   navHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: 10,
   },
   backBtn: {
-    backgroundColor: "white",
-    padding: 10,
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
+    width: 44,
+    height: 44,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#1A4D2E",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#ffffff",
+    letterSpacing: 0.5,
+  },
+
+  // Content
+  scrollContent: {
+    paddingTop: 24, // Push down slightly
   },
   subtitle: {
     fontSize: 14,
-    color: "#739072",
-    paddingHorizontal: 25,
-    marginBottom: 25,
+    color: "#64748B", // Slate 500
+    paddingHorizontal: 24,
+    marginBottom: 24,
+    textAlign: 'center',
   },
+
+  // Inputs
   inputWrapper: {
-    paddingHorizontal: 25,
+    paddingHorizontal: 24,
     marginBottom: 20,
   },
   label: {
-    color: "#1A4D2E",
-    fontSize: 12,
-    fontWeight: "700",
+    color: "#1E293B", // Slate 800
+    fontSize: 13,
+    fontWeight: "600",
     marginBottom: 8,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    marginLeft: 5,
+    marginLeft: 4,
   },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 18,
-    borderRadius: 22,
-    shadowColor: "#1A4D2E",
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 3,
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0", // Slate 200
+    // Shadow
+    shadowColor: "#64748B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   textAreaCard: {
     alignItems: "flex-start",
-    minHeight: 120,
+    paddingVertical: 16,
   },
-  inputIcon: {
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: "#EFF6FF", // Light Blue bg for icon
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 12,
   },
   input: {
     flex: 1,
-    fontSize: 18,
-    color: "#1A4D2E",
+    fontSize: 16,
+    color: "#0F172A", // Dark Slate
     fontWeight: "600",
+    height: '100%',
   },
   textArea: {
     minHeight: 100,
-    paddingTop: 0,
+    paddingTop: 8, // Align text with icon
   },
+
+  // Buttons
   buttonContainer: {
-    paddingHorizontal: 25,
-    marginTop: 10,
+    paddingHorizontal: 24,
+    marginTop: 20,
     paddingBottom: 40,
   },
   saveBtn: {
     flexDirection: "row",
-    backgroundColor: "#1A4D2E",
-    padding: 20,
-    borderRadius: 22,
+    backgroundColor: "#172554", // Midnight Blue
+    height: 56,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#1A4D2E",
-    shadowOpacity: 0.2,
+    shadowColor: "#172554",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 5,
   },
-  saveText: { color: "white", fontWeight: "700", fontSize: 16 },
+  saveText: { 
+    color: "white", 
+    fontWeight: "700", 
+    fontSize: 16 
+  },
   cancelBtn: {
-    marginTop: 15,
-    padding: 15,
+    marginTop: 16,
+    height: 50,
     alignItems: "center",
+    justifyContent: 'center',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    backgroundColor: "#ffffff",
   },
   cancelText: {
-    color: "#739072",
+    color: "#EF4444", // Red for cancel
     fontWeight: "600",
-    fontSize: 14,
+    fontSize: 15,
   },
 });
