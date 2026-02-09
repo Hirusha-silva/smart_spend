@@ -148,7 +148,7 @@ export default function Stats() {
 
           </View>
 
-          <View style={{height: 40}}/>
+          <View style={{height: 120}}/>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   emptyText: {
-    color: "#64748B",
+    color: "#6b0024",
     textAlign: 'center',
     marginVertical: 20,
   },
