@@ -1,3 +1,4 @@
+
 import { useLoader } from "@/hooks/useLoader";
 import { addTransaction, getCurrentBalance } from "@/services/cashService";
 import { auth } from "@/services/firebase";
@@ -14,6 +15,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-root-toast";
@@ -21,27 +23,12 @@ import { RootSiblingParent } from "react-native-root-siblings";
 
 const CATEGORIES = [
   { id: "inc-1", name: "Salary", icon: "cash-outline", type: "income" },
-  {
-    id: "inc-2",
-    name: "Investments",
-    icon: "trending-up-outline",
-    type: "income",
-  },
+  { id: "inc-2", name: "Investments", icon: "trending-up-outline", type: "income" },
   { id: "inc-3", name: "Gifts", icon: "gift-outline", type: "income" },
-  {
-    id: "inc-4",
-    name: "Refunds",
-    icon: "refresh-circle-outline",
-    type: "income",
-  },
+  { id: "inc-4", name: "Refunds", icon: "refresh-circle-outline", type: "income" },
   { id: "inc-5", name: "Scholarship", icon: "school-outline", type: "income" },
   { id: "inc-6", name: "Freelance", icon: "laptop-outline", type: "income" },
-  {
-    id: "exp-1",
-    name: "Food & Drinks",
-    icon: "fast-food-outline",
-    type: "expense",
-  },
+  { id: "exp-1", name: "Food & Drinks", icon: "fast-food-outline", type: "expense" },
   { id: "exp-2", name: "Transport", icon: "bus-outline", type: "expense" },
   { id: "exp-3", name: "Shopping", icon: "cart-outline", type: "expense" },
   { id: "exp-4", name: "Rent/Bills", icon: "home-outline", type: "expense" },
@@ -78,16 +65,13 @@ export default function AddTransaction() {
       amount: numericAmount,
       description: description.trim(),
       categoryId: selectedCat,
-      categoryName:
-        CATEGORIES.find((c) => c.id === selectedCat)?.name || "General",
+      categoryName: CATEGORIES.find((c) => c.id === selectedCat)?.name || "General",
       createdAt: serverTimestamp(),
     };
 
     try {
       showLoader();
-
       const currentBalance = await getCurrentBalance();
-
       await addTransaction(transactionData);
 
       if (type === "expense") {
@@ -113,186 +97,251 @@ export default function AddTransaction() {
 
   return (
     <RootSiblingParent>
-      <SafeAreaView style={styles.container}>
-        {showBanner && (
-          <View style={styles.bannerContainer}>
-            <Ionicons name="warning" size={20} color="white" />
-            <Text style={styles.bannerText}>{bannerMsg}</Text>
-            <TouchableOpacity onPress={() => setShowBanner(false)}>
-              <Ionicons name="close" size={20} color="white" />
-            </TouchableOpacity>
+      <View style={styles.mainContainer}>
+        <StatusBar barStyle="light-content" />
+
+        {/* 1. TOP BLUE SECTION */}
+        <SafeAreaView style={styles.topSection}>
+          <Text style={styles.pageTitle}>New Transaction</Text>
+          
+          {/* Amount Input Block */}
+          <View style={styles.amountBlock}>
+            <Text style={styles.currencySymbol}>LKR</Text>
+            <TextInput
+              style={styles.amountInput}
+              keyboardType="decimal-pad"
+              placeholder="0.00"
+              placeholderTextColor="rgba(255,255,255,0.4)"
+              value={amount}
+              onChangeText={setAmount}
+              autoFocus={false}
+            />
           </View>
-        )}
 
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={styles.title}>Add Transaction</Text>
-
+          {/* Type Toggle Switch */}
           <View style={styles.toggleContainer}>
             <TouchableOpacity
-              onPress={() => {
-                setType("expense");
-                setSelectedCat("exp-1");
-              }}
-              style={[
-                styles.toggleBtn,
-                type === "expense" && styles.activeExpense,
-              ]}
+              onPress={() => { setType("expense"); setSelectedCat("exp-1"); }}
+              style={[styles.toggleBtn, type === "expense" && styles.activeToggle]}
+              activeOpacity={0.8}
             >
-              <Text
-                style={[
-                  styles.toggleText,
-                  type === "expense" && styles.activeText,
-                ]}
-              >
+              <Text style={[styles.toggleText, type === "expense" && styles.activeToggleText]}>
                 Expense
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => {
-                setType("income");
-                setSelectedCat("inc-1");
-              }}
-              style={[
-                styles.toggleBtn,
-                type === "income" && styles.activeIncome,
-              ]}
+              onPress={() => { setType("income"); setSelectedCat("inc-1"); }}
+              style={[styles.toggleBtn, type === "income" && styles.activeToggle]}
+              activeOpacity={0.8}
             >
-              <Text
-                style={[
-                  styles.toggleText,
-                  type === "income" && styles.activeText,
-                ]}
-              >
+              <Text style={[styles.toggleText, type === "income" && styles.activeToggleText]}>
                 Income
               </Text>
             </TouchableOpacity>
           </View>
+        </SafeAreaView>
 
-          <View style={styles.card}>
-            <Text style={styles.label}>Amount (LKR)</Text>
-            <TextInput
-              style={[
-                styles.amountInput,
-                { color: type === "income" ? "#4F6F52" : "#1A4D2E" },
-              ]}
-              keyboardType="decimal-pad"
-              placeholder="0.00"
-              value={amount}
-              onChangeText={setAmount}
-            />
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-              style={styles.descInput}
-              placeholder="What was this for?"
-              placeholderTextColor="#A9AF94"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-            />
-          </View>
-
-          <Text style={styles.sectionTitle}>Category</Text>
-          <View style={styles.catGrid}>
-            {CATEGORIES.filter((c) => c.type === type).map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                onPress={() => setSelectedCat(cat.id)}
-                style={[
-                  styles.catItem,
-                  selectedCat === cat.id && styles.catActive,
-                ]}
-              >
-                <Ionicons
-                  name={cat.icon as any}
-                  size={24}
-                  color={selectedCat === cat.id ? "white" : "#1A4D2E"}
-                />
-                <Text
-                  style={[
-                    styles.catText,
-                    selectedCat === cat.id && { color: "white" },
-                  ]}
-                >
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <TouchableOpacity
-            disabled={isLoading}
-            onPress={handleSave}
-            style={[
-              styles.saveBtn,
-              { backgroundColor: type === "income" ? "#4F6F52" : "#1A4D2E" },
-              isLoading && { opacity: 0.7 },
-            ]}
+        {/* 2. BOTTOM WHITE SHEET */}
+        <View style={styles.bottomSheet}>
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
           >
-            {isLoading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.saveBtnText}>
-                Save {type === "income" ? "Income" : "Expense"}
-              </Text>
+            {showBanner && (
+              <View style={styles.bannerContainer}>
+                <Ionicons name="warning" size={20} color="white" />
+                <Text style={styles.bannerText}>{bannerMsg}</Text>
+                <TouchableOpacity onPress={() => setShowBanner(false)}>
+                  <Ionicons name="close" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
             )}
-          </TouchableOpacity>
 
-          <View style={{ height: 100 }} />
-        </ScrollView>
-      </SafeAreaView>
+            {/* Description Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>DESCRIPTION</Text>
+              <View style={styles.filledInput}>
+                <Ionicons name="create-outline" size={20} color="#64748B" style={{marginRight: 10}}/>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="What is this transaction for?"
+                  placeholderTextColor="#94A3B8"
+                  value={description}
+                  onChangeText={setDescription}
+                />
+              </View>
+            </View>
+
+            {/* Category Grid */}
+            <Text style={styles.sectionTitle}>SELECT CATEGORY</Text>
+            <View style={styles.catGrid}>
+              {CATEGORIES.filter((c) => c.type === type).map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  onPress={() => setSelectedCat(cat.id)}
+                  style={[styles.catItem, selectedCat === cat.id && styles.catActive]}
+                  activeOpacity={0.7}
+                >
+                  <View style={[
+                    styles.iconCircle,
+                    selectedCat === cat.id && { backgroundColor: "rgba(255,255,255,0.2)" }
+                  ]}>
+                    <Ionicons
+                      name={cat.icon as any}
+                      size={20}
+                      color={selectedCat === cat.id ? "white" : "#172554"}
+                    />
+                  </View>
+                  <Text style={[styles.catText, selectedCat === cat.id && { color: "white" }]}>
+                    {cat.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Save Button */}
+            <TouchableOpacity
+              disabled={isLoading}
+              onPress={handleSave}
+              style={[
+                styles.saveBtn,
+                { backgroundColor: type === "income" ? "#10B981" : "#EF4444" },
+                isLoading && { opacity: 0.7 },
+              ]}
+              activeOpacity={0.8}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={styles.saveBtnText}>
+                    Save {type === "income" ? "Income" : "Expense"}
+                  </Text>
+                  <Ionicons name="checkmark-circle" size={20} color="white" style={{marginLeft: 8}}/>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {/* FIX IS HERE: 
+               Increased height from 40 to 120. 
+               This pushes the content up above your bottom tab bar.
+            */}
+            <View style={{ height: 120 }} />
+          </ScrollView>
+        </View>
+      </View>
     </RootSiblingParent>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F7F1EE", paddingHorizontal: 25 },
-  title: {
-    fontSize: 28,
+  mainContainer: { 
+    flex: 1, 
+    backgroundColor: "#172554", 
+  },
+  topSection: {
+    height: "35%", 
+    alignItems: 'center',
+    paddingTop: 10,
+  },
+  pageTitle: {
+    color: "#93C5FD", 
+    fontSize: 14,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    marginBottom: 10,
+  },
+  amountBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  currencySymbol: {
+    color: "#64748B", 
+    fontSize: 24,
+    fontWeight: "700",
+    marginRight: 8,
+    marginTop: 8,
+  },
+  amountInput: {
+    color: "#ffffff",
+    fontSize: 48,
     fontWeight: "800",
-    color: "#1A4D2E",
-    marginVertical: 20,
+    minWidth: 100,
+    textAlign: 'center',
   },
   toggleContainer: {
     flexDirection: "row",
-    backgroundColor: "#E2E8F0",
+    backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 20,
-    padding: 5,
-    marginBottom: 25,
+    padding: 4,
+    width: "80%",
   },
   toggleBtn: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: "center",
-    borderRadius: 15,
+    borderRadius: 16,
   },
-  activeExpense: { backgroundColor: "#1A4D2E" },
-  activeIncome: { backgroundColor: "#4F6F52" },
-  toggleText: { fontWeight: "700", color: "#739072" },
-  activeText: { color: "white" },
-  card: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 25,
-    marginBottom: 20,
-    elevation: 2,
+  activeToggle: { 
+    backgroundColor: "#ffffff",
   },
-  label: {
-    color: "#739072",
-    fontWeight: "600",
-    marginBottom: 8,
-    fontSize: 12,
-    textTransform: "uppercase",
+  toggleText: { 
+    fontWeight: "600", 
+    color: "#93C5FD",
+    fontSize: 14,
   },
-  amountInput: { fontSize: 36, fontWeight: "800" },
-  descInput: { fontSize: 16, color: "#1A4D2E", minHeight: 40 },
-  sectionTitle: {
-    fontSize: 18,
+  activeToggleText: { 
+    color: "#172554", 
     fontWeight: "700",
-    color: "#1A4D2E",
-    marginBottom: 15,
+  },
+  bottomSheet: {
+    flex: 1,
+    backgroundColor: "#F8FAFC", 
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    overflow: "hidden",
+  },
+  scrollContent: {
+    padding: 24,
+    paddingTop: 30,
+  },
+  inputContainer: {
+    marginBottom: 24,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#64748B",
+    marginBottom: 8,
+    marginLeft: 4,
+    letterSpacing: 0.5,
+  },
+  filledInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 56,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#0F172A",
+    fontWeight: "600",
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#64748B",
+    marginBottom: 12,
+    marginLeft: 4,
+    letterSpacing: 0.5,
   },
   catGrid: {
     flexDirection: "row",
@@ -300,36 +349,70 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   catItem: {
-    width: "47%",
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 20,
+    width: "31%", 
+    backgroundColor: "#ffffff",
+    paddingVertical: 16,
+    borderRadius: 16,
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#64748B",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  catActive: { backgroundColor: "#4F6F52" },
-  catText: { marginTop: 8, fontWeight: "600", color: "#1A4D2E" },
+  catActive: { 
+    backgroundColor: "#172554", 
+    borderColor: "#172554",
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: "#F1F5F9",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  catText: { 
+    fontSize: 11,
+    fontWeight: "600", 
+    color: "#1E293B",
+    textAlign: 'center',
+  },
   saveBtn: {
-    height: 60,
-    borderRadius: 20,
+    height: 58,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  saveBtnText: { color: "white", fontSize: 18, fontWeight: "700" },
+  saveBtnText: { 
+    color: "white", 
+    fontSize: 16, 
+    fontWeight: "800",
+    letterSpacing: 0.5,
+  },
   bannerContainer: {
-    backgroundColor: "#B91C1C",
-    padding: 15,
+    backgroundColor: "#EF4444",
+    padding: 12,
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
-    marginTop: 10,
   },
   bannerText: {
     color: "white",
     flex: 1,
     marginHorizontal: 10,
     fontWeight: "600",
+    fontSize: 13,
   },
 });
