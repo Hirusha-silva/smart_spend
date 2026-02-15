@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,11 @@ export default function UpdateTransaction() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
+
+   useEffect(() => {
+    if (params.amount) setAmount(params.amount as string);
+    if (params.description) setDescription(params.description as string);
+  }, [params.id]);
 
   const [amount, setAmount] = useState(params.amount as string);
   const [description, setDescription] = useState(params.description as string);
@@ -47,6 +52,7 @@ export default function UpdateTransaction() {
     }
   };
 
+ 
   return (
     <View style={styles.mainContainer}>
       <StatusBar barStyle="light-content" />
@@ -300,3 +306,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
+
+
